@@ -11,16 +11,16 @@ if(isset($_POST["action"]))
 	if($_POST["action"] == "fetch")
 	{
 		$query = "
-		SELECT * FROM tbl_teacher 
-		INNER JOIN tbl_grade 
-		ON tbl_grade.grade_id = tbl_teacher.teacher_grade_id 
+		SELECT * FROM tbl_teacher
+		INNER JOIN tbl_grade
+		ON tbl_grade.grade_id = tbl_teacher.teacher_grade_id
 		";
 		if(isset($_POST["search"]["value"]))
 		{
 			$query .= '
-			WHERE tbl_teacher.teacher_name LIKE "%'.$_POST["search"]["value"].'%" 
-			OR tbl_teacher.teacher_emailid LIKE "%'.$_POST["search"]["value"].'%" 
-			OR tbl_grade.grade_name LIKE "%'.$_POST["search"]["value"].'%" 
+			WHERE tbl_teacher.teacher_name LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_teacher.teacher_emailid LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_grade.grade_name LIKE "%'.$_POST["search"]["value"].'%"
 			';
 		}
 		if(isset($_POST["order"]))
@@ -32,7 +32,7 @@ if(isset($_POST["action"]))
 		else
 		{
 			$query .= '
-			ORDER BY tbl_teacher.teacher_id DESC 
+			ORDER BY tbl_teacher.teacher_id DESC
 			';
 		}
 		if($_POST["length"] != -1)
@@ -217,9 +217,9 @@ if(isset($_POST["action"]))
 					':teacher_grade_id'		=>	$teacher_grade_id
 				);
 				$query = "
-				INSERT INTO tbl_teacher 
-				(teacher_name, teacher_address, teacher_emailid, teacher_password, teacher_qualification, teacher_doj, teacher_image, teacher_grade_id) 
-				SELECT * FROM (SELECT :teacher_name, :teacher_address, :teacher_emailid, :teacher_password, :teacher_qualification, :teacher_doj, :teacher_image, :teacher_grade_id) as temp 
+				INSERT INTO tbl_teacher
+				(teacher_name, teacher_address, teacher_emailid, teacher_password, teacher_qualification, teacher_doj, teacher_image, teacher_grade_id)
+				SELECT * FROM (SELECT :teacher_name, :teacher_address, :teacher_emailid, :teacher_password, :teacher_qualification, :teacher_doj, :teacher_image, :teacher_grade_id) as temp
 				WHERE NOT EXISTS (
 					SELECT teacher_emailid FROM tbl_teacher WHERE teacher_emailid = :teacher_emailid
 				) LIMIT 1
@@ -254,12 +254,12 @@ if(isset($_POST["action"]))
 					':teacher_id'		=>	$_POST["teacher_id"]
 				);
 				$query = "
-				UPDATE tbl_teacher 
-				SET teacher_name = :teacher_name, 
-				teacher_address = :teacher_address,  
-				teacher_grade_id = :teacher_grade_id, 
-				teacher_qualification = :teacher_qualification, 
-				teacher_doj = :teacher_doj, 
+				UPDATE tbl_teacher
+				SET teacher_name = :teacher_name,
+				teacher_address = :teacher_address,
+				teacher_grade_id = :teacher_grade_id,
+				teacher_qualification = :teacher_qualification,
+				teacher_doj = :teacher_doj,
 				teacher_image = :teacher_image
 				WHERE teacher_id = :teacher_id
 				";
@@ -280,9 +280,9 @@ if(isset($_POST["action"]))
 	if($_POST["action"] == "single_fetch")
 	{
 		$query = "
-		SELECT * FROM tbl_teacher 
-		INNER JOIN tbl_grade 
-		ON tbl_grade.grade_id = tbl_teacher.teacher_grade_id 
+		SELECT * FROM tbl_teacher
+		INNER JOIN tbl_grade
+		ON tbl_grade.grade_id = tbl_teacher.teacher_grade_id
 		WHERE tbl_teacher.teacher_id = '".$_POST["teacher_id"]."'";
 		$statement = $connect->prepare($query);
 		if($statement->execute())
@@ -358,7 +358,7 @@ if(isset($_POST["action"]))
 	if($_POST["action"] == "delete")
 	{
 		$query = "
-		DELETE FROM tbl_teacher 
+		DELETE FROM tbl_teacher
 		WHERE teacher_id = '".$_POST["teacher_id"]."'
 		";
 		$statement = $connect->prepare($query);
@@ -367,7 +367,7 @@ if(isset($_POST["action"]))
 			echo 'Data Deleted Successfully';
 		}
 	}
-	
+
 }
 
 ?>
