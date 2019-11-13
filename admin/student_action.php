@@ -11,18 +11,19 @@ if(isset($_POST["action"]))
 	if($_POST["action"] == "fetch")
 	{
 		$query = "
-		SELECT * FROM tbl_student 
-		INNER JOIN tbl_grade 
-		ON tbl_grade.grade_id = tbl_student.student_grade_id 
+		SELECT * FROM tbl_student
+		INNER JOIN tbl_grade
+		ON tbl_grade.grade_id = tbl_student.student_grade_id
 		";
 
 		if(isset($_POST["search"]["value"]))
 		{
 			$query .= '
-			WHERE tbl_student.student_name LIKE "%'.$_POST["search"]["value"].'%" 
-			OR tbl_student.student_roll_number LIKE "%'.$_POST["search"]["value"].'%" 
-			OR tbl_student.student_dob LIKE "%'.$_POST["search"]["value"].'%" 
-			OR tbl_grade.grade_name LIKE "%'.$_POST["search"]["value"].'%" 
+			WHERE tbl_student.student_name LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_student.student_roll_number LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_student.student_dob LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_grade.grade_name LIKE "%'.$_POST["search"]["value"].'%"
+			OR tbl_student.student_emailid LIKE "%'.$_POST["search"]["value"].'%"
 			';
 		}
 
@@ -35,7 +36,7 @@ if(isset($_POST["action"]))
 		else
 		{
 			$query .= '
-			ORDER BY tbl_student.student_id DESC 
+			ORDER BY tbl_student.student_id DESC
 			';
 		}
 		if($_POST["length"] != -1)
@@ -56,6 +57,8 @@ if(isset($_POST["action"]))
 			$sub_array[] = $row["student_roll_number"];
 			$sub_array[] = $row["student_dob"];
 			$sub_array[] = $row["grade_name"];
+			$sub_array[] = $row["student_emailid"];
+			$sub_array[] = '<button type="button" name="view_student" class="btn btn-info btn-sm view_student" id="'.$row["student_id"].'">View</button>';
 			$sub_array[] = '<button type="button" name="edit_student" class="btn btn-primary btn-sm edit_student" id="'.$row["student_id"].'">Edit</button>';
 			$sub_array[] = '<button type="button" name="delete_student" class="btn btn-danger btn-sm delete_student" id="'.$row["student_id"].'">Delete</button>';
 			$data[] = $sub_array;
@@ -76,10 +79,14 @@ if(isset($_POST["action"]))
 		$student_roll_number = '';
 		$student_dob = '';
 		$student_grade_id = '';
+		$student_emailid = '';
+		$student_password = '';
 		$error_student_name = '';
 		$error_student_roll_number = '';
 		$error_student_dob = '';
 		$error_student_grade_id = '';
+		$error_student_emailid = '';
+		$error_student_password = '';
 		$error = 0;
 		if(empty($_POST["student_name"]))
 		{
@@ -92,7 +99,7 @@ if(isset($_POST["action"]))
 		}
 		if(empty($_POST["student_roll_number"]))
 		{
-			$error_student_roll_number = 'Student Roll Number is required';
+			$error_student_roll_number = 'Student SRN is required';
 			$error++;
 		}
 		else
@@ -117,6 +124,35 @@ if(isset($_POST["action"]))
 		{
 			$student_grade_id = $_POST["student_grade_id"];
 		}
+		if($_POST["action"] == "Add")
+		{
+			if(empty($_POST["student_emailid"]))
+			{
+				$error_student_emailid = 'Email Address is required';
+				$error++;
+			}
+			else
+			{
+				if(!filter_var($_POST["student_emailid"], FILTER_VALIDATE_EMAIL))
+				{
+					$error_student_emailid = 'Invalid email format';
+					$error++;
+				}
+				else
+				{
+					$student_emailid = $_POST["student_emailid"];
+				}
+			}
+			if(empty($_POST["student_password"]))
+			{
+				$error_student_password = "Password is required";
+				$error++;
+			}
+			else
+			{
+				$student_password = $_POST["student_password"];
+			}
+		}
 		if($error > 0)
 		{
 			$output = array(
@@ -125,6 +161,8 @@ if(isset($_POST["action"]))
 				'error_student_roll_number'		=>	$error_student_roll_number,
 				'error_student_dob'				=>	$error_student_dob,
 				'error_student_grade_id'		=>	$error_student_grade_id
+				'error_student_emailid'			=>	$error_student_emailid,
+				'error_student_password'		=>	$error_student_password,
 			);
 		}
 		else
@@ -136,36 +174,51 @@ if(isset($_POST["action"]))
 					':student_roll_number'	=>	$student_roll_number,
 					':student_dob'		=>	$student_dob,
 					':student_grade_id'	=>	$student_grade_id
+					':student_emailid'		=>	$student_emailid,
+					':student_password'		=>	password_hash($student_password, PASSWORD_DEFAULT),
 				);
 				$query = "
-				INSERT INTO tbl_student 
-				(student_name, student_roll_number, student_dob, student_grade_id) 
-				VALUES (:student_name, :student_roll_number, :student_dob, :student_grade_id)
+				INSERT INTO tbl_student
+				(student_name, student_roll_number, student_dob, student_grade_id, student_emailid, student_password)
+				SELECT * FROM (SELECT :student_name, :student_roll_number, :student_dob, :student_grade_id, :student_emailid, :student_password) as temp
+				WHERE NOT EXISTS (
+					SELECT student_emailid FROM tbl_student WHERE student_emailid = :student_emailid
+				) LIMIT 1
 				";
 
 				$statement = $connect->prepare($query);
 				if($statement->execute($data))
 				{
-					$output = array(
-						'success'		=>	'Data Added Successfully',
-					);
+					if($statement->rowCount() > 0)
+					{
+						$output = array(
+							'success'		=>	'Data Added Successfully',
+						);
+					}
+					else
+					{
+						$output = array(
+							'error'					=>	true,
+							'error_student_emailid'	=>	'Email Already Exists'
+						);
+					}
 				}
 			}
 			if($_POST["action"] == "Edit")
 			{
 				$data = array(
-					':student_name'			=>	$student_name,	
+					':student_name'			=>	$student_name,
 					':student_roll_number'	=>	$student_roll_number,
 					':student_dob'			=>	$student_dob,
 					':student_grade_id'		=>	$student_grade_id,
 					':student_id'			=>	$_POST["student_id"]
 				);
 				$query = "
-				UPDATE tbl_student 
-				SET student_name = :student_name, 
-				student_roll_number = :student_roll_number, 
-				student_dob = :student_dob, 
-				student_grade_id = :student_grade_id 
+				UPDATE tbl_student
+				SET student_name = :student_name,
+				student_roll_number = :student_roll_number,
+				student_dob = :student_dob,
+				student_grade_id = :student_grade_id
 				WHERE student_id = :student_id
 				";
 				$statement = $connect->prepare($query);
@@ -180,10 +233,55 @@ if(isset($_POST["action"]))
 		echo json_encode($output);
 	}
 
+	if($_POST["action"] == "single_fetch")
+	{
+		$query = "
+		SELECT * FROM tbl_student
+		INNER JOIN tbl_grade
+		ON tbl_grade.grade_id = tbl_student.student_grade_id
+		WHERE tbl_student.student_id = '".$_POST["student_id"]."'";
+		$statement = $connect->prepare($query);
+		if($statement->execute())
+		{
+			$result = $statement->fetchAll();
+			$output = '
+			<div class="row">
+			';
+			foreach($result as $row)
+			{
+				$output .= '
+				<div class="col-md-9">
+					<table class="table">
+						<tr>
+							<th>Name</th>
+							<td>'.$row["student_name"].'</td>
+						</tr>
+						<tr>
+							<th>Email Address</th>
+							<td>'.$row["student_emailid"].'</td>
+						</tr>
+						<tr>
+							<th>Date of Birth</th>
+							<td>'.$row["student_dob"].'</td>
+						</tr>
+						<tr>
+							<th>Grade</th>
+							<td>'.$row["grade_name"].'</td>
+						</tr>
+					</table>
+				</div>
+				';
+			}
+			$output .= '</div>';
+			echo $output;
+		}
+	}
+
+
 	if($_POST["action"] == "edit_fetch")
 	{
 		$query = "
-		SELECT * FROM tbl_student 
+		SELECT * FROM tbl_student
 		WHERE student_id = '".$_POST["student_id"]."'
 		";
 		$statement = $connect->prepare($query);
@@ -204,7 +302,7 @@ if(isset($_POST["action"]))
 	if($_POST["action"] == "delete")
 	{
 		$query = "
-		DELETE FROM tbl_student 
+		DELETE FROM tbl_student
 		WHERE student_id = '".$_POST["student_id"]."'
 		";
 		$statement = $connect->prepare($query);
