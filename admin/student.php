@@ -25,9 +25,7 @@ include('header.php');
   						<th>Student Name</th>
   						<th>Roll No.</th>
   						<th>Date of Birth</th>
-              <th>Grade</th>
-              <th>Email Address</th>
-              <th>View</th>
+              			<th>Grade</th>
   						<th>Edit</th>
   						<th>Delete</th>
   					</tr>
@@ -36,7 +34,7 @@ include('header.php');
 
   				</tbody>
   			</table>
-
+  			
   		</div>
   	</div>
   </div>
@@ -109,24 +107,6 @@ include('header.php');
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <div class="row">
-            <label class="col-md-4 text-right">Email Address <span class="text-danger">*</span></label>
-            <div class="col-md-8">
-              <input type="text" name="student_emailid" id="student_emailid" class="form-control" />
-              <span id="error_student_emailid" class="text-danger"></span>
-            </div>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="row">
-            <label class="col-md-4 text-right">Password <span class="text-danger">*</span></label>
-            <div class="col-md-8">
-              <input type="password" name="student_password" id="student_password" class="form-control" />
-              <span id="error_student_password" class="text-danger"></span>
-            </div>
-          </div>
-        </div>
 
         <!-- Modal footer -->
         <div class="modal-footer">
@@ -138,30 +118,6 @@ include('header.php');
 
       </div>
   </form>
-  </div>
-</div>
-
-<div class="modal" id="viewModal">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-
-      <!-- Modal Header -->
-      <div class="modal-header">
-        <h4 class="modal-title">student Details</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-      </div>
-
-      <!-- Modal body -->
-      <div class="modal-body" id="student_details">
-
-      </div>
-
-      <!-- Modal footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger btn-sm" data-dismiss="modal">Close</button>
-      </div>
-
-    </div>
   </div>
 </div>
 
@@ -192,7 +148,7 @@ include('header.php');
 
 <script>
 $(document).ready(function(){
-
+	
 	var dataTable = $('#student_table').DataTable({
 		"processing":true,
 		"serverSide":true,
@@ -217,8 +173,6 @@ $(document).ready(function(){
 		$('#error_student_roll_number').text('');
 		$('#error_student_dob').text('');
 		$('#error_student_grade_id').text('');
-    $('#error_student_emailid').text('');
-    $('#error_student_password').text('');
 	}
 
 	$('#add_button').click(function(){
@@ -285,42 +239,12 @@ $(document).ready(function(){
 					{
 						$('#error_student_grade_id').text('');
 					}
-          if(data.error_student_emailid != '')
-          {
-            $('#error_student_emailid').text(data.error_student_emailid);
-          }
-          else
-          {
-            $('#error_student_emailid').text('');
-          }
-          if(data.error_student_password != '')
-          {
-            $('#error_student_password').text(data.error_student_password);
-          }
-          else
-          {
-            $('#error_student_password').text('');
-          }
 				}
 			}
-		});
+		})
 	});
 
   var student_id = '';
-
-  $(document).on('click', '.view_student', function(){
-    student_id = $(this).attr('id');
-    $.ajax({
-      url:"student_action.php",
-      method:"POST",
-      data:{action:'single_fetch', student_id:student_id},
-      success:function(data)
-      {
-        $('#viewModal').modal('show');
-        $('#student_details').html(data);
-      }
-    });
-  });
 
   $(document).on('click', '.edit_student', function(){
     student_id = $(this).attr('id');

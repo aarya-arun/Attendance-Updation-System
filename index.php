@@ -12,7 +12,7 @@ include('header.php');
       <div class="row">
         <div class="col-md-9">Overall Student Attendance Status</div>
         <div class="col-md-3" align="right">
-
+          
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@ include('header.php');
           <thead>
             <tr>
               <th>Student Name</th>
-              <th>SRN</th>
+              <th>Roll Number</th>
               <th>Grade</th>
               <th>Attendance Percentage</th>
               <th>Report</th>
@@ -86,7 +86,7 @@ include('header.php');
 
 <script>
 $(document).ready(function(){
-
+	 
   var dataTable = $('#student_table').DataTable({
     "processing":true,
     "serverSide":true,
