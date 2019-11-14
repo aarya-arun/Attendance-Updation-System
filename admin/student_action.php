@@ -159,7 +159,7 @@ if(isset($_POST["action"]))
 				'error'							=>	true,
 				'error_student_name'			=>	$error_student_name,
 				'error_student_roll_number'		=>	$error_student_roll_number,
-				'error_student_dob'				=>	$error_student_dob,
+				'error_student_dob'			=>	$error_student_dob,
 				'error_student_grade_id'		=>	$error_student_grade_id
 				'error_student_emailid'			=>	$error_student_emailid,
 				'error_student_password'		=>	$error_student_password,
